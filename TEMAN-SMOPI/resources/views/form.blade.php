@@ -167,11 +167,10 @@
                 <label for="pengajar">Nama Pengajar<span style="color: red">*</span></label>
                 <select id="pengajar" name="pengajar" required>
                     <option value="">-- Pilih Mentor/ PIC --</option>
-                    <option value="a">Mr. A</option>
-                    <option value="b">Mr. B</option>
-                    <option value="c">Mr. C</option>
-                    <option value="d">Mr. D</option>
-                    <option value="e">Mr. E</option>
+                    @foreach ($users as $item)
+                        <option value="{{ $item->id }}" data-id="{{ $item->id }}">{{ $item->NAMA }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
@@ -256,45 +255,45 @@
             document.getElementById("pengaduanForm").reset();
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-        const jenisAkun = document.getElementById('jenis_akun');
-        const menuKendala = document.getElementById('menu_kendala');
+        document.addEventListener("DOMContentLoaded", function() {
+            const jenisAkun = document.getElementById('jenis_akun');
+            const menuKendala = document.getElementById('menu_kendala');
 
-        const allOptions = Array.from(menuKendala.querySelectorAll('option'));
+            const allOptions = Array.from(menuKendala.querySelectorAll('option'));
 
-        jenisAkun.addEventListener('change', function () {
-            const selectedValue = this.value;
+            jenisAkun.addEventListener('change', function() {
+                const selectedValue = this.value;
 
-            // Simpan option default
-            const defaultOption = allOptions.find(opt => opt.value === "");
+                // Simpan option default
+                const defaultOption = allOptions.find(opt => opt.value === "");
 
-            // Kosongkan dropdown dulu
-            menuKendala.innerHTML = '';
-            if (defaultOption) menuKendala.appendChild(defaultOption);
+                // Kosongkan dropdown dulu
+                menuKendala.innerHTML = '';
+                if (defaultOption) menuKendala.appendChild(defaultOption);
 
-            allOptions.forEach(option => {
-                const id = parseInt(option.getAttribute('data-id'));
+                allOptions.forEach(option => {
+                    const id = parseInt(option.getAttribute('data-id'));
 
-                if (!id) return; // skip option kosong
+                    if (!id) return; // skip option kosong
 
-                if (selectedValue === 'admin' && id >= 1 && id <= 7) {
-                    menuKendala.appendChild(option);
-                } else if (selectedValue === 'j1' && id === 8) {
-                    menuKendala.appendChild(option);
-                } else if (selectedValue === 'j2' && id >= 9 && id <= 14) {
-                    menuKendala.appendChild(option);
-                } else if (selectedValue === 'pengamat' && id >= 15 && id <= 19) {
-                    menuKendala.appendChild(option);
-                } else if (selectedValue === 'mantri' && id >= 20 && id <= 23) {
-                    menuKendala.appendChild(option);
-                } else if (selectedValue === 'ppa' && id === 24) {
-                    menuKendala.appendChild(option);
-                } else if (selectedValue === 'pob' && id === 25) {
-                    menuKendala.appendChild(option);
-                }
+                    if (selectedValue === 'admin' && id >= 1 && id <= 7) {
+                        menuKendala.appendChild(option);
+                    } else if (selectedValue === 'j1' && id === 8) {
+                        menuKendala.appendChild(option);
+                    } else if (selectedValue === 'j2' && id >= 9 && id <= 14) {
+                        menuKendala.appendChild(option);
+                    } else if (selectedValue === 'pengamat' && id >= 15 && id <= 19) {
+                        menuKendala.appendChild(option);
+                    } else if (selectedValue === 'mantri' && id >= 20 && id <= 23) {
+                        menuKendala.appendChild(option);
+                    } else if (selectedValue === 'ppa' && id === 24) {
+                        menuKendala.appendChild(option);
+                    } else if (selectedValue === 'pob' && id === 25) {
+                        menuKendala.appendChild(option);
+                    }
+                });
             });
         });
-    });
     </script>
 </body>
 

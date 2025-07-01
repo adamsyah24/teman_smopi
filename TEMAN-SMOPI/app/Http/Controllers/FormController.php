@@ -13,7 +13,6 @@ class FormController extends Controller
     public function submit(Request $request)
     {
         // Validasi data jika diperlukan
-        // dd($request->all());
         $tiket = DB::table('t_laporan_admin')->max('TIKET') + 1;
 
         $id = Str::uuid()->toString();
@@ -28,11 +27,19 @@ class FormController extends Controller
         $deskripsi = $request->input('deskripsi');
         $bukti = $request->file('bukti')->store('bukti_pengaduan', 'public');
         try {
-            DB::insert('INSERT INTO t_laporan_admin (ID, TIKET, NAMA, ID_KATEGORI, STATUS, BUKTI_SS, NO_HP, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+            DB::insert('INSERT INTO t_laporan_admin (ID, TIKET, NAMA, ID_KATEGORI,
+            ASAL_INSTANSI, NAMA_DI, ID_PENGAJAR, NAMA_AKUN, JENIS_AKUN, DESKRIPSI
+            , STATUS, BUKTI_SS, NO_HP, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
                 $id,
                 $tiket,
                 $namaPengadu,
                 $menu_kendala,
+                $asal_instansi,
+                $nama_di,
+                $pengajar,
+                $nama_akun,
+                $jenis_akun,
+                $deskripsi,
                 1,
                 $bukti,
                 $nohp,
@@ -58,9 +65,13 @@ class FormController extends Controller
     public function showForm()
     {
         $kategori = DB::table('ms_kategori')->get();
-        return view('form', compact('kategori'));
-    }
+        $users = DB::table('users')
+            ->where('name', "!=", "SuperAdmin")
+            ->orderBy('created_at', 'desc')
+            ->get();
 
+        return view('form', compact('kategori', 'users'));
+    }
 
     public function hapus(Request $request)
     {

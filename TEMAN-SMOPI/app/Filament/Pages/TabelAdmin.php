@@ -47,4 +47,9 @@ class TabelAdmin extends Page implements HasTable
                 ])
             ]);
     }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 }

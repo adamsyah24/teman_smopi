@@ -35,7 +35,6 @@ class TabelLaporanAdmin extends Page implements HasTable
             ->columns([
                 TextColumn::make('TIKET')
                     ->label('Tiket')
-                    ->limit(8)
                     ->tooltip(fn($record) => $record->TIKET),
                 TextColumn::make('NAMA')->label('Nama'),
                 TextColumn::make('NAMA_KATEGORI')->label('Kategori'),
