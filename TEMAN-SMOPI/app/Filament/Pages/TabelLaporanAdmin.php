@@ -31,7 +31,7 @@ class TabelLaporanAdmin extends Page implements HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(ViewLaporan::query()->orderBy('TIKET', 'ASC'))
+            ->query(ViewLaporan::query()->orderBy('TIKET', 'DESC'))
             ->columns([
                 TextColumn::make('TIKET')
                     ->label('Tiket')
@@ -80,7 +80,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                 ->where('ID', $record->ID)
                                 ->update([
                                     'STATUS' => 2,
-                                    'UPDATED_AT' => now(),
+                                    'UPDATED_DIKERJAKAN_DATE' => now(),
                                     'UPDATED_BY' => 'admin',
                                 ]);
                             Notification::make()
@@ -104,7 +104,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                 ->where('ID', $record->ID)
                                 ->update([
                                     'STATUS' => 3,
-                                    'UPDATED_AT' => now(),
+                                    'UPDATED_PENDING_DATE' => now(),
                                     'UPDATED_BY' => 'admin',
                                 ]);
                             Notification::make()
@@ -128,7 +128,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                 ->where('ID', $record->ID)
                                 ->update([
                                     'STATUS' => 4,
-                                    'UPDATED_AT' => now(),
+                                    'UPDATED_SELESAI_DATE' => now(),
                                     'UPDATED_BY' => 'admin',
                                 ]);
                             Notification::make()
@@ -152,7 +152,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                 ->where('ID', $record->ID)
                                 ->update([
                                     'STATUS' => 5,
-                                    'UPDATED_AT' => now(),
+                                    'UPDATED_BATAL_DATE' => now(),
                                     'UPDATED_BY' => 'admin',
                                 ]);
                             Notification::make()
@@ -176,7 +176,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                 ->where('ID', $record->ID)
                                 ->update([
                                     'STATUS' => 0,
-                                    'UPDATED_AT' => now(),
+                                    'UPDATED_HAPUS_DATE' => now(),
                                     'UPDATED_BY' => 'admin',
                                 ]);
                             Notification::make()

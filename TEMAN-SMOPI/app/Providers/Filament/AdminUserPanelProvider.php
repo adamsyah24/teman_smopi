@@ -21,16 +21,16 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\Auth\Login;
 
 class AdminUserPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
             ->id('adminUser')
             ->path('adminUser')
-            ->login()
+            ->login(Login::class) // 👈 pastikan ini benar dan di ATAS
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -41,12 +41,11 @@ class AdminUserPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
                 TabelLaporanAdmin::class,
                 TabelAdmin::class,
-
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -63,11 +62,6 @@ class AdminUserPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->passwordReset()
-            ->profile(EditProfile::class)
-            ->profile(isSimple: false)
-            // ->userMenuItems([
-            //     'profile' => MenuItem::make()->label('Edit profile'),
-            // ])
-        ;
+            ->profile(EditProfile::class); // ✅ hanya satu profile
     }
 }
