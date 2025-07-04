@@ -1,0 +1,56 @@
+/* === Warna bangunan saat hover dan aktif === */
+circle.bangunan-draggable {
+    stroke-width: 4px;
+    stroke: #0066dd;
+    transition: stroke-width 0.3s ease, stroke 0.3s ease;
+}
+circle.bangunan-draggable:hover {
+    stroke-width: 10px;
+    stroke: #ffaa22;
+}
+circle.bangunan-draggable.active {
+    stroke-width: 14px;
+    stroke: #ffaa22aa;
+    fill: #22ccff;
+}
+
+/* === Sidebar Info === */
+#leftmenu {
+    box-shadow: 0 0 10px #999;
+    border-radius: 5px;
+    max-width: 300px;
+    z-index: 9999;
+}
+
+/* === Petak & Golongan style (untuk tahap berikutnya) === */
+.ter {
+    stroke: #334455;
+    fill: #bbffee;
+}
+.golongan_1 {
+    stroke: #3aad08 !important;
+    fill: #ddfff0cc !important;
+}
+.golongan_2 {
+    stroke: #e57a00 !important;
+    fill: #fffadaaa !important;
+}
+.golongan_3 {
+    stroke: #0757d3 !important;
+    fill: #cceef6 !important;
+}
+.on {
+    stroke-width: 3px !important;
+}
+
+rect.petak-draggable {
+    transition: all 0.3s ease;
+}
+.golongan_1 {
+    stroke: #3aad08;
+    fill: #ddfff0cc;
+}
+.golongan_2 {
+    stroke: #e57a00;
+    fill: #fffadaaa;
+}
