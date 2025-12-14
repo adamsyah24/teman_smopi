@@ -33,23 +33,23 @@ class FormController extends Controller
         // $bukti = $request->file('bukti')->store('bukti_pengaduan', 'public');
         $bukti = null;
         if ($request->hasFile('bukti')) {
-        $file = $request->file('bukti');
-        $filename = time() . '_' . $file->getClientOriginalName();
-    
-        // Folder tujuan di website utama (bukan di BK)
-        $target = '/home/irigasi/public_html/TEMAN-SMOPI/uploads/bukti_pengaduan';
-    
-        // Pastikan folder ada
-        if (!file_exists($target)) {
-            mkdir($target, 0755, true);
+            $file = $request->file('bukti');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            // Folder tujuan di website utama (bukan di BK)
+            $target = '/home/irigasi/public_html/TEMAN-SMOPI/uploads/bukti_pengaduan';
+
+            // Pastikan folder ada
+            if (!file_exists($target)) {
+                mkdir($target, 0755, true);
+            }
+
+            // Pindahkan file ke sana
+            $file->move($target, $filename);
+
+            // Simpan path relatif untuk URL
+            $bukti = 'uploads/bukti_pengaduan/' . $filename;
         }
-    
-        // Pindahkan file ke sana
-        $file->move($target, $filename);
-    
-        // Simpan path relatif untuk URL
-        $bukti = 'uploads/bukti_pengaduan/' . $filename;
-    }
         $numbers = [];
 
         if (!empty($nohp)) {
@@ -81,9 +81,9 @@ class FormController extends Controller
                 1,
                 $bukti,
                 $nohp,
-                now()->toDateString(),
+                now(),
                 'system',
-                now()->toDateString(),
+                now(),
                 'system',
             ]);
 
@@ -111,7 +111,7 @@ class FormController extends Controller
     {
         $kategori = DB::table('ms_kategori')->get();
         $users = DB::table('users')
-            ->where('role_name', "!=", "Super Admin", "AND", "Pengembang")
+            ->where('role_name', "=", "Pengajar")
             ->orderBy('created_at', 'desc')
             ->get();
 

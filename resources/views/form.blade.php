@@ -214,7 +214,9 @@
             </div>
 
             <div class="form-group">
-                <label for="bukti">Bukti<span style="color: red">*</span> <span style="font-size: 12px; color: red">(Mohon kirim Screen Capture yang jelas dan benar agar dapat diproses.)</span> </label>
+                <label for="bukti">Bukti<span style="color: red">*</span> <span
+                        style="font-size: 12px; color: red">(Mohon kirim Screen Capture yang jelas dan benar agar dapat
+                        diproses.)</span> </label>
                 <input type="file" id="bukti" name="bukti" required />
             </div>
 
@@ -323,6 +325,28 @@
             });
         });
     </script>
+    <script>
+        document.getElementById("pengaduanForm").addEventListener("submit", function() {
+            document.getElementById("pageLoading").style.display = "flex";
+        });
+    </script>
+    <div id="pageLoading"
+        style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        display: none;
+     ">
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+        </div>
+    </div>
 </body>
 
 </html>

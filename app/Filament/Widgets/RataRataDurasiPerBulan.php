@@ -46,7 +46,7 @@ class RataRataDurasiPerBulan extends ChartWidget
 
         foreach ($bulanKeys as $data) {
             $rata = $data['jumlah_data'] > 0 ? $data['total_hari'] / $data['jumlah_data'] : 0;
-            $values[] = round($rata, 2); // rata-rata hari dengan 2 desimal
+            $values[] = ceil($rata); // rata-rata hari dengan 2 desimal
         }
 
         return [

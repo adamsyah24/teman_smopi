@@ -42,6 +42,7 @@ class UserResource extends Resource
                     $roleName = Role::where('role_id', $state)->value('role_name');
                     $set('role_name', $roleName);
                 }),
+            Hidden::make('role_name'),
             TextInput::make('password')
                 ->password()
                 ->dehydrated(fn($state) => filled($state))
