@@ -9,8 +9,8 @@ class WaBlast
         $curl = curl_init();
 
         // Token & Secret Key dari .env
-        $token = env('WABLAS_TOKEN', 'dw8IHDJctgrFmMoGsfIU5f0r4KyfjvulZiQOi01GpSbVEg1RVK7TnOi');
-        $secret_key = env('WABLAS_SECRET', 'YTyjfB4W');
+        $token = env('WABLAS_TOKEN', 'QurkGqxZFGGmnjdAhLP5v1fBQtpfLnOE43YhFbjUURy69aE7YHtQpoE');
+        $secret_key = env('WABLAS_SECRET', 'ML0SVlth');
 
         // Payload untuk multi nomor
         $payload = [

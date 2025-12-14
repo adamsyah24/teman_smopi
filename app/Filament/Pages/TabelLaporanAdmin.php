@@ -274,11 +274,16 @@ class TabelLaporanAdmin extends Page implements HasTable
                         'Pengajuan Penolakan' => 'danger',
                         'Ditolak' => 'danger',
                     }),
+                // TextColumn::make('BUKTI_SS')
+                //     ->label('Bukti')
+                //     ->url(fn($record) => asset('storage/' . $record->BUKTI_SS))
+                //     ->openUrlInNewTab()
+                //     ->formatStateUsing(fn() => 'Lihat File'),
                 TextColumn::make('BUKTI_SS')
                     ->label('Bukti')
-                    ->url(fn($record) => asset('storage/' . $record->BUKTI_SS))
-                    ->openUrlInNewTab()
-                    ->formatStateUsing(fn() => 'Lihat File'),
+                    ->formatStateUsing(fn() => 'Download File')
+                    ->url(fn($record) => route('download.bukti', $record->ID))
+                    ->openUrlInNewTab(),
                 TextColumn::make('NO_HP')->label('Nomor WA'),
                 TextColumn::make('CREATED_AT')->label('Tanggal Pengaduan'),
             ])
