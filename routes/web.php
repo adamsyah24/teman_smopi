@@ -14,8 +14,10 @@ Route::get('/', [FormController::class, 'showForm']);
 
 Route::get('/download-bukti/{id}', function ($id) {
     $data = DB::table('t_laporan_admin')->where('ID', $id)->first();
+    abort_if(!$data, 404);
 
-    abort_if(!$data || !Storage::disk('public')->exists($data->BUKTI_SS), 404);
+    $filePath = public_path('storage/' . $data->BUKTI_SS);
+    abort_if(!file_exists($filePath), 404);
 
-    return Storage::disk('public')->download($data->BUKTI_SS);
+    return response()->download($filePath);
 })->name('download.bukti');

@@ -5,15 +5,16 @@ namespace App\Filament\Widgets;
 use App\Models\LaporanAdmin;
 use Filament\Widgets\ChartWidget;
 
-class StatistikBulananLaporan extends ChartWidget
+class StatistikBulananLaporanDitolak extends ChartWidget
 {
-    protected static ?string $heading = 'Statistik Bulanan Laporan';
+    protected static ?string $heading = 'Statistik Bulanan Laporan Ditolak';
+
 
     protected function getData(): array
     {
         $data = LaporanAdmin::selectRaw('MONTH(CREATED_AT) as bulan, COUNT(*) as total')
             ->whereYear('CREATED_AT', now()->year)
-            ->where('STATUS', '!=', 11)
+            ->where('STATUS', '=', 2)
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();
@@ -44,7 +45,7 @@ class StatistikBulananLaporan extends ChartWidget
                 [
                     'label' => 'Jumlah Laporan',
                     'data' => $jumlahPerBulan,
-                    'backgroundColor' => '#10b981', // hijau
+                    'backgroundColor' => '#03fcf4', // hijau
                 ],
             ],
             'labels' => array_values($bulanLabels),

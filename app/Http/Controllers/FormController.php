@@ -15,8 +15,12 @@ class FormController extends Controller
     public function submit(Request $request)
     {
         // Validasi data jika diperlukan
-        $admin = User::whereIn('role_id', [1, 2, 4])->get();
-        $nomorWa = $admin->pluck('NOMOR_WA')->toArray();
+        $pengajar = $request->input('pengajar');
+        $admin = User::whereIn('role_id', [1, 2, 4])
+            ->where('id', $pengajar) // ← compare dengan ID_PENGAJAR
+            ->first();
+
+        $nomorWa = $admin ? [$admin->NOMOR_WA] : [];
         $tiket = DB::table('t_laporan_admin')->max('TIKET') + 1;
 
         $id = Str::uuid()->toString();
@@ -25,7 +29,6 @@ class FormController extends Controller
         $asal_instansi = $request->input('asal_instansi');
         $nama_di = $request->input('nama_di');
         $nama_instansi = $request->input('nama_instansi');
-        $pengajar = $request->input('pengajar');
         $nama_akun = $request->input('nama_akun');
         $jenis_akun = $request->input('jenis_akun');
         $menu_kendala = $request->input('menu_kendala');
@@ -44,6 +47,8 @@ class FormController extends Controller
         if (empty($nama_di)) {
             $nama_di = $nama_instansi;
         }
+
+        // dd($pengajar, $nomorWa, $numbers);
 
         try {
             DB::insert('INSERT INTO t_laporan_admin (ID, TIKET, NAMA, ID_KATEGORI,

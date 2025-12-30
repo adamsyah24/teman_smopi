@@ -20,10 +20,16 @@
                 <strong>Jenis Akun:</strong> {{ $this->laporan->JENIS_AKUN }}
             </div>
             <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Nama Pengajar:</strong> {{ $this->laporan->NAMA_PENGAJAR }}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
                 <strong>Status:</strong> {{ $this->laporan->NAMA_STATUS }}
             </div>
             <div class="p-4 border rounded bg-white shadow-sm">
                 <strong>No HP:</strong> {{ $this->laporan->NO_HP }}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Kategori:</strong> {{ $this->laporan->NAMA_KATEGORI }}
             </div>
             <div class="p-4 border rounded bg-white shadow-sm">
                 <strong>Dibuat:</strong> {{ $this->laporan->CREATED_AT }}
@@ -31,12 +37,42 @@
             <div class="p-4 border rounded bg-white shadow-sm">
                 <strong>Bukti:</strong>
                 @if ($this->laporan->BUKTI_SS)
-                    <a href="{{ asset('storage/' . $this->laporan->BUKTI_SS) }}"
-                       class="text-primary-600 underline"
-                       target="_blank">📎 Lihat Bukti</a>
+                    <a href="{{ route('download.bukti', $this->laporan->ID) }}" class="text-primary-600 underline">
+                        📎 Download Bukti
+                    </a>
                 @else
                     Tidak ada bukti
                 @endif
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Ditolak dengan catatan:</strong> {{ $this->laporan->CATATAN_DITOLAK ?? "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Tanggal ditolak:</strong> {{ $this->laporan->DITOLAK_DATE ?? "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Ditolak oleh:</strong> {{ $this->laporan->DITOLAK_BY ?? "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Dibatalkan dengan catatan:</strong> {{ $this->laporan->CATATAN_DIBATALKAN ?? "-" }}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Tanggal dibatalkan:</strong> {{ $this->laporan->DIBATALKAN_DATE ?? "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Dibatalkan oleh:</strong> {{ $this->laporan->DIBATALKAN_BY ?? "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Pengajuan ditolak dengan catatan oleh pengembang:</strong> {{ $this->laporan->CATATAN_AJUKAN_PENOLAKAN_DEVELOPER ?? "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Apakah sudah terverifikasi? :</strong> {{ $this->laporan->VERIFIKASI_PENOLAKAN_DATE ? "Sudah" : "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Tanggal pengajuan ditolak:</strong> {{ $this->laporan->AJUKAN_PENOLAKAN_DEVELOPER_DATE ?? "-"}}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Pengajuan ditolak oleh:</strong> {{ $this->laporan->AJUKAN_PENOLAKAN_DEVELOPER_BY ?? "-"}}
             </div>
             <div class="md:col-span-2 p-4 border rounded bg-white shadow-sm">
                 <strong>Deskripsi:</strong>

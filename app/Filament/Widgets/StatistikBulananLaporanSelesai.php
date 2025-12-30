@@ -14,7 +14,7 @@ class StatistikBulananLaporanSelesai extends ChartWidget
     {
         $data = LaporanAdmin::selectRaw('MONTH(CREATED_AT) as bulan, COUNT(*) as total')
             ->whereYear('CREATED_AT', now()->year)
-            ->where('STATUS', '=', 4)
+            ->where('STATUS', '=', 10)
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();

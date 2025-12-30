@@ -26,7 +26,7 @@ class DurasiPengerjaanChart extends ChartWidget
 
             $hari = $created->diffInDays($selesai);
             $labels[] = $item->TIKET;
-            $durasi[] = $hari;
+            $durasi[] = ceil($hari);
         }
 
         return [
@@ -41,9 +41,43 @@ class DurasiPengerjaanChart extends ChartWidget
         ];
     }
 
+    // protected function getOptions(): array
+    // {
+    //     return [
+    //         'scales' => [
+    //             'x' => [
+    //                 'title' => [
+    //                     'display' => true,
+    //                     'text' => 'Tiket',
+    //                 ],
+    //             ],
+    //             'y' => [
+    //                 'title' => [
+    //                     'display' => true,
+    //                     'text' => 'Durasi (Hari)',
+    //                 ],
+    //                 'beginAtZero' => true,
+    //             ],
+    //         ],
+    //     ];
+    // }
     protected function getOptions(): array
     {
         return [
+            'plugins' => [
+                'legend' => [
+                    'display' => true,
+                ],
+                'datalabels' => [
+                    'anchor' => 'end',
+                    'align' => 'end',
+                    'color' => '#000',
+                    'font' => [
+                        'weight' => 'bold',
+                    ],
+                    'formatter' => fn($value) => $value . ' hari',
+                ],
+            ],
             'scales' => [
                 'x' => [
                     'title' => [
@@ -61,6 +95,7 @@ class DurasiPengerjaanChart extends ChartWidget
             ],
         ];
     }
+
 
     protected function getType(): string
     {

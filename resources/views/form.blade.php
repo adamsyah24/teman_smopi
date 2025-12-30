@@ -179,7 +179,7 @@
             </div>
 
             <div class="form-group">
-                <label for="nama_akun">Nama Akun<span style="color: red">*</span></label>
+                <label for="nama_akun">Nama Akun SMOPI<span style="color: red">*</span></label>
                 <input placeholder="Contoh: Supriyadi123" type="text" id="nama_akun" name="nama_akun" required />
             </div>
 
@@ -294,11 +294,11 @@
                         menuKendala.appendChild(option);
                     } else if (selectedValue === 'pengamat' && id >= 18 && id <= 37) {
                         menuKendala.appendChild(option);
-                    } else if (selectedValue === 'mantri' && id >= 38 && id <= 44) {
+                    } else if (selectedValue === 'mantri' && id >= 38 && id <= 44 && id === 45 && id === 49 ) {
                         menuKendala.appendChild(option);
-                    } else if (selectedValue === 'ppa' && id >= 45 && id <= 46) {
+                    } else if (selectedValue === 'ppa' && id >= 45 && id <= 46 && id === 49) {
                         menuKendala.appendChild(option);
-                    } else if (selectedValue === 'pob' && id === 47) {
+                    } else if (selectedValue === 'pob' && id === 48) {
                         menuKendala.appendChild(option);
                     }
                 });
