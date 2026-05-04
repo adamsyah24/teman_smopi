@@ -11,6 +11,9 @@
                 <strong>Nama Daerah Irigasi:</strong> {{ $this->laporan->NAMA_DI }}
             </div>
             <div class="p-4 border rounded bg-white shadow-sm">
+                <strong>Nama Instansi:</strong> {{ $this->laporan->NAMA_INSTANSI ? $this->laporan->NAMA_INSTANSI : "-"  }}
+            </div>
+            <div class="p-4 border rounded bg-white shadow-sm">
                 <strong>Pengajar:</strong> {{ $this->laporan->NAMA_PENGAJAR }}
             </div>
             <div class="p-4 border rounded bg-white shadow-sm">

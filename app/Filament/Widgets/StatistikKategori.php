@@ -62,6 +62,6 @@ class StatistikKategori extends ChartWidget
 
     protected function getType(): string
     {
-        return 'line'; // bar chart lebih cocok untuk kategori
+        return 'bar'; // bar chart lebih cocok untuk kategori
     }
 }

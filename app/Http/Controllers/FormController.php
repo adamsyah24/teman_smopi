@@ -21,7 +21,7 @@ class FormController extends Controller
             ->first();
 
         $nomorWa = $admin ? [$admin->NOMOR_WA] : [];
-        $tiket = DB::table('t_laporan_admin')->max('TIKET') + 1;
+        $tiket = (DB::table('t_laporan_admin')->max('TIKET') ?? 0) + 1;
 
         $id = Str::uuid()->toString();
         $namaPengadu = $request->input('nama');
@@ -33,7 +33,9 @@ class FormController extends Controller
         $jenis_akun = $request->input('jenis_akun');
         $menu_kendala = $request->input('menu_kendala');
         $deskripsi = $request->input('deskripsi');
-        $bukti = $request->file('bukti')->store('bukti_pengaduan', 'public');
+        $bukti = $request->hasFile('bukti')
+            ? $request->file('bukti')->store('bukti_pengaduan', 'public')
+            : null;
         $numbers = [];
 
         if (!empty($nohp)) {
@@ -44,33 +46,28 @@ class FormController extends Controller
             $numbers = array_merge($numbers, (array) $nomorWa);
         }
 
-        if (empty($nama_di)) {
-            $nama_di = $nama_instansi;
-        }
-
         // dd($pengajar, $nomorWa, $numbers);
 
         try {
-            DB::insert('INSERT INTO t_laporan_admin (ID, TIKET, NAMA, ID_KATEGORI,
-            ASAL_INSTANSI, NAMA_DI, ID_PENGAJAR, NAMA_AKUN, JENIS_AKUN, DESKRIPSI
-            , STATUS, BUKTI_SS, NO_HP, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
-                $id,
-                $tiket,
-                $namaPengadu,
-                $menu_kendala,
-                $asal_instansi,
-                $nama_di,
-                $pengajar,
-                $nama_akun,
-                $jenis_akun,
-                $deskripsi,
-                1,
-                $bukti,
-                $nohp,
-                now(),
-                'system',
-                now(),
-                'system',
+            DB::table('t_laporan_admin')->insert([
+                'ID' => $id,
+                'TIKET' => $tiket,
+                'NAMA' => $request->nama,
+                'ID_KATEGORI' => $request->menu_kendala,
+                'ASAL_INSTANSI' => $request->asal_instansi,
+                'NAMA_DI' => $request->nama_di,
+                'NAMA_INSTANSI' => $request->nama_instansi,
+                'ID_PENGAJAR' => $pengajar,
+                'NAMA_AKUN' => $request->nama_akun,
+                'JENIS_AKUN' => $request->jenis_akun,
+                'DESKRIPSI' => $request->deskripsi,
+                'STATUS' => 1,
+                'BUKTI_SS' => $bukti,
+                'NO_HP' => $request->nohp,
+                'CREATED_AT' => now(),
+                'CREATED_BY' => 'system',
+                'UPDATED_AT' => now(),
+                'UPDATED_BY' => 'system',
             ]);
 
             $message = "📢 Laporan Baru!\n\n" .
@@ -83,6 +80,7 @@ class FormController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil disimpan.',
+                'tiket' => $tiket
             ]);
         } catch (\Exception $e) {
             return response()->json([

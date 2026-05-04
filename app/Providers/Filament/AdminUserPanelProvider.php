@@ -4,6 +4,9 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\TabelAdmin;
 use App\Filament\Pages\TabelLaporanAdmin;
+use App\Filament\Pages\TabelLaporanPengajar;
+use App\Filament\Pages\TabelLaporanPengembang;
+use App\Filament\Pages\TabelLaporanSuperAdmin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -41,6 +44,9 @@ class AdminUserPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                TabelLaporanSuperAdmin::class,
+                TabelLaporanPengajar::class,
+                TabelLaporanPengembang::class,
                 TabelLaporanAdmin::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')

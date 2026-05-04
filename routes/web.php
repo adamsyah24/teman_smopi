@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FormController;
+use App\Models\ViewLaporan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -21,3 +22,47 @@ Route::get('/download-bukti/{id}', function ($id) {
 
     return response()->download($filePath);
 })->name('download.bukti');
+
+Route::get('/adminUser/tabel-laporan-admin/export', function () {
+    abort_unless(auth()->check(), 401);
+    abort_unless(in_array(auth()->user()->role_id, [1, 2, 4], true), 403);
+
+    $filename = 'laporan_admin_' . now()->format('Ymd_His') . '.xls';
+
+    return response()->streamDownload(function () {
+        echo "\xEF\xBB\xBF";
+        echo '<table border="1">';
+        echo '<thead><tr>';
+        echo '<th>No</th>';
+        echo '<th>Tiket</th>';
+        echo '<th>Nama</th>';
+        echo '<th>Kategori</th>';
+        echo '<th>Status</th>';
+        echo '<th>Nomor WA</th>';
+        echo '<th>Tanggal Pengaduan</th>';
+        echo '<th>Bukti</th>';
+        echo '</tr></thead><tbody>';
+
+        $i = 1;
+
+        foreach (ViewLaporan::query()->orderBy('TIKET', 'DESC')->cursor() as $row) {
+            $buktiUrl = route('download.bukti', $row->ID);
+
+            echo '<tr>';
+            echo '<td>' . $i++ . '</td>';
+            echo '<td>' . e($row->TIKET) . '</td>';
+            echo '<td>' . e($row->NAMA) . '</td>';
+            echo '<td>' . e($row->NAMA_KATEGORI) . '</td>';
+            echo '<td>' . e($row->NAMA_STATUS) . '</td>';
+            echo '<td>' . e($row->NO_HP) . '</td>';
+            echo '<td>' . e($row->CREATED_AT) . '</td>';
+            echo '<td><a href="' . e($buktiUrl) . '">Download File</a></td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
+    }, $filename, [
+        'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+    ]);
+})->middleware('auth')->name('adminUser.tabel-laporan-admin.export');

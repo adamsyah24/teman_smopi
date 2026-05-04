@@ -253,7 +253,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    alert("Pengaduan berhasil dikirim!");
+                    alert(`Pengaduan dengan nomor tiket ${data.tiket} berhasil dikirim!`);
                     window.location.href = "{{ url()->current() }}";
                 })
                 .catch(error => {
@@ -294,9 +294,15 @@
                         menuKendala.appendChild(option);
                     } else if (selectedValue === 'pengamat' && id >= 18 && id <= 37) {
                         menuKendala.appendChild(option);
-                    } else if (selectedValue === 'mantri' && id >= 38 && id <= 44 && id === 45 && id === 49 ) {
+                    } else if (
+                        selectedValue === 'mantri' &&
+                        ((id >= 38 && id <= 44) || id === 45 || id === 49)
+                    ) {
                         menuKendala.appendChild(option);
-                    } else if (selectedValue === 'ppa' && id >= 45 && id <= 46 && id === 49) {
+                    } else if (
+                        selectedValue === 'ppa' &&
+                        ((id >= 45 && id <= 46) || id === 49)
+                    ) {
                         menuKendala.appendChild(option);
                     } else if (selectedValue === 'pob' && id === 48) {
                         menuKendala.appendChild(option);
@@ -314,15 +320,9 @@
 
             selectAsal.addEventListener('change', function() {
                 if (this.value === 'Lainnya') {
-                    formDI.style.display = 'none';
-                    inputDI.removeAttribute('required');
-
                     formInstansi.style.display = 'block';
                     inputInstansi.setAttribute('required', 'required');
                 } else {
-                    formDI.style.display = 'block';
-                    inputDI.setAttribute('required', 'required');
-
                     formInstansi.style.display = 'none';
                     inputInstansi.removeAttribute('required');
                 }

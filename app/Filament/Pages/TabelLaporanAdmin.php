@@ -12,37 +12,49 @@ use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
+	use Filament\Tables\Contracts\HasTable;
+	use Filament\Tables\Concerns\InteractsWithTable;
+	use Filament\Tables\Table;
+	use Filament\Tables\Columns\TextColumn;
+	use Illuminate\Database\Eloquent\Builder;
+	use Illuminate\Support\Facades\DB;
+	use Illuminate\Support\Collection;
+	use Illuminate\Support\Facades\Auth;
 
 class TabelLaporanAdmin extends Page implements HasTable
 {
-    use InteractsWithTable;
+	    use InteractsWithTable;
 
-    protected static ?string $navigationLabel = 'Tabel Laporan Admin';
-    protected static ?string $navigationGroup = 'Admin';
-    protected static ?int $navigationSort = 1;
+	    protected static ?string $navigationLabel = 'Tabel Laporan Admin';
+	    protected static ?string $navigationGroup = 'Laporan';
+	    protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+	    protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.tabel-laporan-admin';
+	    protected static string $view = 'filament.pages.tabel-laporan-admin';
 
-    public function reminder($laporanId): void
-    {
-        $laporan = ViewLaporan::findOrFail($laporanId);
-        $user = Auth::user();
+	    protected static int $roleContextId = 4;
+
+	    /** @var array<int> */
+	    protected static array $allowedAccessRoleIds = [1, 4];
+
+	    protected function roleContextId(): int
+	    {
+	        return static::$roleContextId;
+	    }
+
+	    public static function canAccess(): bool
+	    {
+	        return in_array(auth()->user()?->role_id, static::$allowedAccessRoleIds, true);
+	    }
+
+	    public function reminder($laporanId): void
+	    {
+	        $laporan = ViewLaporan::findOrFail($laporanId);
+	        $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
 
         $numbers = [];
-
-        if (!empty($laporan->NO_HP)) {
-            $numbers[] = $laporan->NO_HP;
-        }
 
         if (!empty($user->NOMOR_WA)) {
             $numbers[] = $user->NOMOR_WA;
@@ -58,7 +70,47 @@ class TabelLaporanAdmin extends Page implements HasTable
         $numbers[] = env('SUPER_ADMIN_WA', '6287704562197');
 
         $message = "📢 Reminder!\n\n" .
-            "Laporan dengan tiket *{$laporan->TIKET}* masih dalam status pending.\n" .
+            "Laporan dengan tiket *{$laporan->TIKET}* belum ditindaklanjuti.\n" .
+            "Mohon segera ditindaklanjuti.\n\n" .
+            "Terima kasih 🙏";
+
+        WaBlast::send($numbers, $message);
+        // \Illuminate\Support\Facades\Log::info("Reminder action terpanggil untuk laporan ID: {$laporanId}");
+        // dd('reminder called', $laporanId);
+        Notification::make()
+            ->title('Reminder berhasil dikirim via WhatsApp.')
+            ->success()
+            ->send();
+    }
+
+    public function reminderPengajar($laporanId): void
+    {
+        $laporan = ViewLaporan::findOrFail($laporanId);
+        $user = Auth::user();
+        $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
+
+        $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
+
+        if (!empty($user->NOMOR_WA)) {
+            $numbers[] = $user->NOMOR_WA;
+        }
+
+        // if (!empty($devs)) {
+        //     $numbers = array_merge($numbers, $devs);
+        // }
+
+        // dd($devs, $numbers);
+
+        // Super admin WA dari .env atau fallback
+        $numbers[] = env('SUPER_ADMIN_WA', '6287704562197');
+
+        $message = "📢 Reminder!\n\n" .
+            "Laporan dengan tiket *{$laporan->TIKET}* belum ditindaklanjuti.\n" .
             "Mohon segera ditindaklanjuti.\n\n" .
             "Terima kasih 🙏";
 
@@ -76,12 +128,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $laporan = ViewLaporan::findOrFail($laporanId);
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
 
         $numbers = [];
 
-        // if (!empty($laporan->NO_HP)) {
-        //     $numbers[] = $laporan->NO_HP;
-        // }
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
         if (!empty($user->NOMOR_WA)) {
             $numbers[] = $user->NOMOR_WA;
@@ -114,9 +167,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $laporan = ViewLaporan::findOrFail($laporanId);
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
 
         $numbers = [];
 
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
         if (!empty($user->NOMOR_WA)) {
             $numbers[] = $user->NOMOR_WA;
         }
@@ -147,7 +204,17 @@ class TabelLaporanAdmin extends Page implements HasTable
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
 
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
+
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
+
+        if (!empty($laporan->NO_HP)) {
+            $numbers[] = $laporan->NO_HP;
+        }
 
         if (!empty($user->NOMOR_WA)) {
             $numbers[] = $user->NOMOR_WA;
@@ -161,7 +228,7 @@ class TabelLaporanAdmin extends Page implements HasTable
         $numbers[] = env('SUPER_ADMIN_WA', '6287704562197');
 
         $message = "📢 Reminder!\n\n" .
-            "Laporan dengan tiket *{$laporan->TIKET}* dibatalkan.\n" .
+            "Laporan dengan tiket *{$laporan->TIKET}* sedang dalam proses pengerjaan oleh pengembang.\n" .
             "Terima kasih 🙏";
 
         WaBlast::send($numbers, $message);
@@ -179,7 +246,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
 
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
+
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
         if (!empty($user->NOMOR_WA)) {
             $numbers[] = $user->NOMOR_WA;
@@ -212,7 +285,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
 
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
+
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
 
         if (!empty($user->NOMOR_WA)) {
@@ -245,7 +324,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
 
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
+
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
 
         if (!empty($user->NOMOR_WA)) {
@@ -278,7 +363,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
 
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
+
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
         if (!empty($laporan->NO_HP)) {
             $numbers[] = $laporan->NO_HP;
@@ -296,7 +387,7 @@ class TabelLaporanAdmin extends Page implements HasTable
         $numbers[] = env('SUPER_ADMIN_WA', '6287704562197');
 
         $message = "📢 Laporan Diterima!\n\n" .
-            "Laporan dengan tiket *{$laporan->TIKET}* diterima dan akan dikerjakan pengembang.\n" .
+            "Laporan dengan tiket *{$laporan->TIKET}* diterima oleh pengajar.\n" .
             "Terima kasih 🙏";
 
         WaBlast::send($numbers, $message);
@@ -313,7 +404,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $laporan = ViewLaporan::findOrFail($laporanId);
         $user = Auth::user();
 
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
+
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
         if (!empty($laporan->NO_HP)) {
             $numbers[] = $laporan->NO_HP;
@@ -344,8 +441,13 @@ class TabelLaporanAdmin extends Page implements HasTable
     {
         $laporan = ViewLaporan::findOrFail($laporanId);
         $user = Auth::user();
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
 
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
         if (!empty($laporan->NO_HP)) {
             $numbers[] = $laporan->NO_HP;
@@ -360,8 +462,9 @@ class TabelLaporanAdmin extends Page implements HasTable
         $numbers[] = env('SUPER_ADMIN_WA', '6287704562197');
 
         $message = "📢 Laporan anda Dibatalkan!\n\n" .
-            "Laporan dengan tiket *{$laporan->TIKET}* dibatalkan dengan alasan: \n *{$laporan->CATATAN_DITOLAK}*. \n \n Mohon hubungi pengajar kembali.\n" .
+            "Laporan dengan tiket *{$laporan->TIKET}* dibatalkan dengan alasan: \n *{$laporan->CATATAN_DIBATALKAN}*. \n \n Mohon hubungi pengajar kembali.\n" .
             "Terima kasih 🙏";
+
 
         WaBlast::send($numbers, $message);
         // \Illuminate\Support\Facades\Log::info("Reminder action terpanggil untuk laporan ID: {$laporanId}");
@@ -377,8 +480,13 @@ class TabelLaporanAdmin extends Page implements HasTable
         $laporan = ViewLaporan::findOrFail($laporanId);
         $user = Auth::user();
         $devs = User::where('role_id', 3)->pluck('NOMOR_WA')->toArray();
+        $pengajar = User::where('name', $laporan->NAMA_PENGAJAR)->first();
 
         $numbers = [];
+
+        if ($pengajar && !empty($pengajar->NOMOR_WA)) {
+            $numbers[] = $pengajar->NOMOR_WA;
+        }
 
         if (!empty($laporan->NO_HP)) {
             $numbers[] = $laporan->NO_HP;
@@ -396,7 +504,7 @@ class TabelLaporanAdmin extends Page implements HasTable
         $numbers[] = env('SUPER_ADMIN_WA', '6287704562197');
 
         $message = "📢 Reminder!\n\n" .
-            "Laporan dengan tiket *{$laporan->TIKET}* sudah selesai dikerjakan pengembang.\n" .
+            "Laporan dengan tiket *{$laporan->TIKET}* sudah selesai dikerjakan.\n" .
             "Terima kasih 🙏";
 
         WaBlast::send($numbers, $message);
@@ -408,20 +516,26 @@ class TabelLaporanAdmin extends Page implements HasTable
             ->send();
     }
 
-    public function table(Table $table): Table
-    {
-        return $table
-            ->query(ViewLaporan::query()->orderBy('TIKET', 'DESC'))
-            ->columns([
+	    public function table(Table $table): Table
+	    {
+	        // $user = Auth::user();
+	        // dd($user);
+	        return $table
+		            ->query($this->getRoleScopedQuery())
+		            ->columns([
+                TextColumn::make('index')
+                    ->label('No.')
+                    ->rowIndex(),
                 TextColumn::make('TIKET')
                     ->label('Tiket')
                     ->searchable()
                     ->tooltip(fn($record) => $record->TIKET),
 
-                TextColumn::make('NAMA')->label('Nama'),
-                TextColumn::make('NAMA_KATEGORI')->label('Kategori'),
+                TextColumn::make('NAMA')->label('Nama')->searchable(),
+                TextColumn::make('NAMA_KATEGORI')->label('Kategori')->searchable(),
                 TextColumn::make('NAMA_STATUS')
                     ->label('Status')
+                    ->searchable()
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'Pengaduan Baru' => 'primary',
@@ -435,24 +549,26 @@ class TabelLaporanAdmin extends Page implements HasTable
                         'Dikembalikan ke Developer' => 'warning',
                         'Selesai' => 'success'
                     }),
-                // TextColumn::make('BUKTI_SS')
-                //     ->label('Bukti')
-                //     ->url(fn($record) => asset('storage/' . $record->BUKTI_SS))
-                //     ->openUrlInNewTab()
-                //     ->formatStateUsing(fn() => 'Lihat File'),
                 TextColumn::make('BUKTI_SS')
                     ->label('Bukti')
                     ->formatStateUsing(fn() => 'Download File')
                     ->url(fn($record) => route('download.bukti', $record->ID))
                     ->openUrlInNewTab(),
-                TextColumn::make('NO_HP')->label('Nomor WA'),
-                TextColumn::make('CREATED_AT')->label('Tanggal Pengaduan'),
-            ])
+                TextColumn::make('NO_HP')->label('Nomor WA')->searchable(),
+	                TextColumn::make('CREATED_AT')->label('Tanggal Pengaduan')->searchable(),
+	            ])
+		            ->headerActions([
+		                Action::make('export_excel')
+		                    ->label('Export Excel')
+		                    ->icon('heroicon-o-arrow-down-tray')
+		                    ->url(fn (): string => route('adminUser.tabel-laporan-admin.export'))
+		                    ->visible(fn (): bool => in_array($this->roleContextId(), [1, 2, 4], true)),
+		            ])
 
-
-            ->actions([
-                ActionGroup::make([
-                    Action::make('lihat')
+	
+	            ->actions([
+	                ActionGroup::make([
+	                    Action::make('lihat')
                         ->label('Lihat')
                         ->icon('heroicon-o-eye')
                         ->url(fn($record) => url('/adminUser/lihat-laporan?ID=' . $record->ID)),
@@ -467,9 +583,8 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2]) && $record->STATUS_ID === 8)
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 2], true) && $record->STATUS_ID === 8)
                         ->action(function ($record) {
-                            $this->selesai($record->ID);
                             \DB::table('t_laporan_admin')
                                 ->where('ID', $record->ID)
                                 ->update([
@@ -477,6 +592,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                     'UPDATED_SELESAI_DATE' => now(),
                                     'UPDATED_BY' => 'admin',
                                 ]);
+                            $this->selesai($record->ID);
                             Notification::make()
                                 ->title('Laporan berhasil diselesaikan.')
                                 ->success()
@@ -493,9 +609,8 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2]) && $record->STATUS_ID === 8)
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 2], true) && $record->STATUS_ID === 8)
                         ->action(function ($record) {
-                            $this->kembaliPengembang($record->ID);
                             \DB::table('t_laporan_admin')
                                 ->where('ID', $record->ID)
                                 ->update([
@@ -503,6 +618,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                     'UPDATED_DIKERJAKAN_DATE' => now(),
                                     'UPDATED_BY' => auth()->user()->name,
                                 ]);
+                            $this->kembaliPengembang($record->ID);
                             Notification::make()
                                 ->title('Laporan berhasil diubah.')
                                 ->success()
@@ -519,9 +635,8 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 3]) && $record->STATUS_ID === 7)
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 3], true) && $record->STATUS_ID === 7)
                         ->action(function ($record) {
-                            $this->tandaiDiperbaiki($record->ID);
                             \DB::table('t_laporan_admin')
                                 ->where('ID', $record->ID)
                                 ->update([
@@ -529,6 +644,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                     'UPDATED_DIKERJAKAN_DATE' => now(),
                                     'UPDATED_BY' => auth()->user()->name,
                                 ]);
+                            $this->tandaiDiperbaiki($record->ID);
                             Notification::make()
                                 ->title('Laporan berhasil diubah.')
                                 ->success()
@@ -544,9 +660,8 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 3]) && ($record->STATUS_ID === 3 || $record->STATUS_ID === 9))
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 3], true) && ($record->STATUS_ID === 3 || $record->STATUS_ID === 9))
                         ->action(function ($record) {
-                            $this->tandaiDikerjakan($record->ID);
                             \DB::table('t_laporan_admin')
                                 ->where('ID', $record->ID)
                                 ->update([
@@ -554,6 +669,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                     'UPDATED_DIKERJAKAN_DATE' => now(),
                                     'UPDATED_BY' => auth()->user()->name,
                                 ]);
+                            $this->tandaiDikerjakan($record->ID);
                             Notification::make()
                                 ->title('Laporan berhasil diubah.')
                                 ->success()
@@ -570,7 +686,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2]) && $record->STATUS_ID === 5)
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 2], true) && $record->STATUS_ID === 5)
                         ->action(function ($record) {
                             $this->verifikasiPenolakan($record->ID);
                             \DB::table('t_laporan_admin')
@@ -597,7 +713,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya, tolak')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2]) && $record->STATUS_ID === 5)
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 2], true) && $record->STATUS_ID === 5)
                         ->action(function ($record) {
                             $this->tolakPengajuanPenolakan($record->ID);
                             \DB::table('t_laporan_admin')
@@ -633,7 +749,7 @@ class TabelLaporanAdmin extends Page implements HasTable
 
                         ->visible(
                             fn($record) =>
-                            in_array(auth()->user()->role_id, [1, 3]) &&
+                            in_array($this->roleContextId(), [1, 3], true) &&
                                 $record->STATUS_ID === 3 && $record->AJUKAN_PENOLAKAN_DEVELOPER_DATE === null
                         )
 
@@ -666,7 +782,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2]) && ($record->STATUS_ID === 1))
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 2], true) && ($record->STATUS_ID === 1))
                         ->action(function ($record) {
                             $this->diterima($record->ID);
                             \DB::table('t_laporan_admin')
@@ -702,12 +818,11 @@ class TabelLaporanAdmin extends Page implements HasTable
 
                         ->visible(
                             fn($record) =>
-                            in_array(auth()->user()->role_id, [1, 2]) &&
-                                $record->STATUS_ID === 1
+	                            in_array($this->roleContextId(), [1, 2], true) &&
+                                in_array($record->STATUS_ID, [1, 6])
                         )
 
                         ->action(function (array $data, $record) {
-                            $this->ditolakDgCtn($record->ID);
                             \DB::table('t_laporan_admin')
                                 ->where('ID', $record->ID)
                                 ->update([
@@ -717,7 +832,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                                     'DITOLAK_BY' => auth()->user()->name,
                                     'UPDATED_BY' => auth()->user()->name,
                                 ]);
-
+                            $this->ditolakDgCtn($record->ID);
                             Notification::make()
                                 ->title('Laporan berhasil ditolak')
                                 ->body('Catatan penolakan berhasil disimpan.')
@@ -746,12 +861,11 @@ class TabelLaporanAdmin extends Page implements HasTable
 
                         ->visible(
                             fn($record) =>
-                            in_array(auth()->user()->role_id, [1, 2]) &&
-                                $record->STATUS_ID === 1
+	                            in_array($this->roleContextId(), [1, 2], true) &&
+                                in_array($record->STATUS_ID, [1, 6])
                         )
 
                         ->action(function (array $data, $record) {
-                            $this->dibatalkanDgCtn($record->ID);
                             \DB::table('t_laporan_admin')
                                 ->where('ID', $record->ID)
                                 ->update([
@@ -761,143 +875,13 @@ class TabelLaporanAdmin extends Page implements HasTable
                                     'DIBATALKAN_BY' => auth()->user()->name,
                                     'UPDATED_BY' => auth()->user()->name,
                                 ]);
-
+                            $this->dibatalkanDgCtn($record->ID);
                             Notification::make()
                                 ->title('Laporan berhasil dibatalkan')
                                 ->body('Catatan pembatalan berhasil disimpan.')
                                 ->success()
                                 ->send();
                         }),
-
-
-                    // Action::make('tandai_dikerjakan')
-                    //     ->label('Tandai Dikerjakan')
-                    //     ->icon('heroicon-o-pencil')
-                    //     ->requiresConfirmation()
-                    //     ->modalHeading('Konfirmasi Tandai Dikerjakan')
-                    //     ->modalDescription('Apakah Anda yakin ingin menandai dikerjakan?')
-                    //     ->modalIcon('heroicon-o-exclamation-triangle')
-                    //     ->modalSubmitActionLabel('Ya')
-                    //     ->modalCancelActionLabel('Batal')
-                    //     ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 3]) && ($record->NAMA_STATUS === 'Pengaduan Baru' || $record->NAMA_STATUS === "Pending"))
-                    //     ->action(function ($record) {
-                    //         $this->onProgress($record->ID);
-                    //         \DB::table('t_laporan_admin')
-                    //             ->where('ID', $record->ID)
-                    //             ->update([
-                    //                 'STATUS' => 2,
-                    //                 'UPDATED_DIKERJAKAN_DATE' => now(),
-                    //                 'UPDATED_BY' => 'admin',
-                    //             ]);
-                    //         Notification::make()
-                    //             ->title('Laporan berhasil diubah.')
-                    //             ->success()
-                    //             ->send();
-                    //     }),
-
-                    // Action::make('tandai_pending')
-                    //     ->label('Tandai Pending')
-                    //     ->icon('heroicon-o-pause')
-                    //     ->color('warning')
-                    //     ->requiresConfirmation()
-                    //     ->modalHeading('Konfirmasi Tandai Pending')
-                    //     ->modalDescription('Apakah Anda yakin ingin menunda dikerjakan?')
-                    //     ->modalIcon('heroicon-o-exclamation-triangle')
-                    //     ->modalSubmitActionLabel('Ya')
-                    //     ->modalCancelActionLabel('Batal')
-                    //     ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 4]) && ($record->NAMA_STATUS !== "Ditolak" && $record->NAMA_STATUS !== "Selesai" && $record->NAMA_STATUS !== "Pending"))
-                    //     ->action(function ($record) {
-                    //         $this->pending($record->ID);
-                    //         \DB::table('t_laporan_admin')
-                    //             ->where('ID', $record->ID)
-                    //             ->update([
-                    //                 'STATUS' => 3,
-                    //                 'UPDATED_PENDING_DATE' => now(),
-                    //                 'UPDATED_BY' => 'admin',
-                    //             ]);
-                    //         Notification::make()
-                    //             ->title('Laporan berhasil diubah.')
-                    //             ->success()
-                    //             ->send();
-                    //     }),
-
-                    // Action::make('verifikasi_selesai')
-                    //     ->label('Verifikasi Selesai')
-                    //     ->icon('heroicon-o-check')
-                    //     ->color('success')
-                    //     ->requiresConfirmation()
-                    //     ->modalHeading('Konfirmasi Selesai')
-                    //     ->modalDescription('Apakah Anda yakin ingin menyelesaikan pekerjaan?')
-                    //     ->modalIcon('heroicon-o-exclamation-triangle')
-                    //     ->modalSubmitActionLabel('Ya')
-                    //     ->modalCancelActionLabel('Batal')
-                    //     ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2]) && $record->NAMA_STATUS === 'Pengajuan Penyelesaian')
-                    //     ->action(function ($record) {
-                    //         $this->selesai($record->ID);
-                    //         \DB::table('t_laporan_admin')
-                    //             ->where('ID', $record->ID)
-                    //             ->update([
-                    //                 'STATUS' => 4,
-                    //                 'UPDATED_SELESAI_DATE' => now(),
-                    //                 'UPDATED_BY' => 'admin',
-                    //             ]);
-                    //         Notification::make()
-                    //             ->title('Laporan berhasil diselesaikan.')
-                    //             ->success()
-                    //             ->send();
-                    //     }),
-
-                    // Action::make('tandai_batal')
-                    //     ->label('Tandai Batal')
-                    //     ->icon('heroicon-o-exclamation-triangle')
-                    //     ->color('warning')
-                    //     ->requiresConfirmation()
-                    //     ->modalHeading('Konfirmasi Batalkan')
-                    //     ->modalDescription('Apakah Anda yakin ingin membatalkan pekerjaan?')
-                    //     ->modalIcon('heroicon-o-exclamation-triangle')
-                    //     ->modalSubmitActionLabel('Ya, batalkan')
-                    //     ->modalCancelActionLabel('Batal')
-                    //     ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2, 4]) && ($record->NAMA_STATUS !== "Selesai" && $record->NAMA_STATUS !== "Ditolak"))
-                    //     ->action(function ($record) {
-                    //         $this->batal($record->ID);
-                    //         \DB::table('t_laporan_admin')
-                    //             ->where('ID', $record->ID)
-                    //             ->update([
-                    //                 'STATUS' => 5,
-                    //                 'UPDATED_BATAL_DATE' => now(),
-                    //                 'UPDATED_BY' => 'admin',
-                    //             ]);
-                    //         Notification::make()
-                    //             ->title('Laporan berhasil dibatalkan.')
-                    //             ->success()
-                    //             ->send();
-                    //     }),
-
-                    // Action::make('verifikasi_penolakan')
-                    //     ->label('Verifikasi Penolakan')
-                    //     ->icon('heroicon-o-exclamation-triangle')
-                    //     ->color('warning')
-                    //     ->requiresConfirmation()
-                    //     ->modalHeading('Verifikasi Penolakan')
-                    //     ->modalDescription('Apakah Anda yakin ingin approve penolakan ini?')
-                    //     ->modalIcon('heroicon-o-exclamation-triangle')
-                    //     ->modalSubmitActionLabel('Ya, tolak')
-                    //     ->modalCancelActionLabel('Batal')
-                    //     ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2]) && $record->NAMA_STATUS === "Pengajuan Penolakan")
-                    //     ->action(function ($record) {
-                    //         $this->penolakan($record->ID);
-                    //         \DB::table('t_laporan_admin')
-                    //             ->where('ID', $record->ID)
-                    //             ->update([
-                    //                 'STATUS' => 7,
-                    //                 'UPDATED_BATAL_DATE' => now(),
-                    //                 'UPDATED_BY' => 'admin',
-                    //             ]);
-                    //         Notification::make()
-                    //             ->title('Berhasil mengajukan penolakan.')
-                    //             ->success()
-                    //             ->send();
-                    //     }),
 
                     Action::make('hapus')
                         ->label('Hapus')
@@ -909,7 +893,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya, Hapus')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1]) && ($record->STATUS_ID !== 10 && $record->STATUS_ID !== 6 && $record->STATUS_ID !== 2 && $record->STATUS_ID !== 4))
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1], true) && ($record->STATUS_ID !== 10 && $record->STATUS_ID !== 6 && $record->STATUS_ID !== 2 && $record->STATUS_ID !== 4))
                         ->action(function ($record) {
                             \DB::table('t_laporan_admin')
                                 ->where('ID', $record->ID)
@@ -925,7 +909,7 @@ class TabelLaporanAdmin extends Page implements HasTable
                         }),
 
                     Action::make('reminder')
-                        ->label('Reminder')
+                        ->label('Reminder Ke Pengembang')
                         ->icon('heroicon-o-check')
                         ->color('primary')
                         ->requiresConfirmation()
@@ -934,11 +918,49 @@ class TabelLaporanAdmin extends Page implements HasTable
                         ->modalIcon('heroicon-o-exclamation-triangle')
                         ->modalSubmitActionLabel('Ya')
                         ->modalCancelActionLabel('Batal')
-                        ->visible(fn($record) => in_array(auth()->user()->role_id, [1, 2, 4]) && ($record->STATUS_ID !== 10 && $record->STATUS_ID !== 6 && $record->STATUS_ID !== 2 && $record->STATUS_ID !== 4))
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 2, 4], true) && ($record->STATUS_ID !== 10 && $record->STATUS_ID !== 6 && $record->STATUS_ID !== 2 && $record->STATUS_ID !== 4 && $record->STATUS_ID !== 1 && $record->STATUS_ID !== 8))
                         ->action(fn($record) => $this->reminder($record->ID)),
+
+                    Action::make('reminderPengajar')
+                        ->label('Reminder ke Pengajar')
+                        ->icon('heroicon-o-check')
+                        ->color('primary')
+                        ->requiresConfirmation()
+                        ->modalHeading('Konfirmasi Reminder')
+                        ->modalDescription('Apakah Anda ingin mengingatkan pengajar?')
+                        ->modalIcon('heroicon-o-exclamation-triangle')
+                        ->modalSubmitActionLabel('Ya')
+                        ->modalCancelActionLabel('Batal')
+                        ->visible(fn($record) => in_array($this->roleContextId(), [1, 4], true) && ($record->STATUS_ID === 1))
+                        ->action(fn($record) => $this->reminderPengajar($record->ID)),
                 ])
 
 
-            ]);
-    }
+	            ]);
+	    }
+
+	    protected function getRoleScopedQuery(): Builder
+	    {
+	        $query = ViewLaporan::query()->orderBy('TIKET', 'DESC');
+
+	        // Filter data berdasarkan "role konteks halaman", bukan role user yang login.
+	        // Catatan: mapping ini bisa disesuaikan lagi kalau definisi "harus dikerjakan"
+	        // berbeda di tiap role.
+	        return match ($this->roleContextId()) {
+	            // SuperAdmin: lihat semua data
+	            1 => $query,
+
+	            // Pengajar (role_id 2): tampilkan data yang ada action selain "Lihat"
+	            // (berdasarkan aturan visible() pada actions)
+	            2 => $query->whereNotIn('STATUS_ID', [2, 4, 10]),
+
+	            // Pengembang (role_id 3): tampilkan data yang relevan untuk alur kerja pengembang
+	            3 => $query->whereIn('STATUS_ID', [3, 7, 9]),
+
+	            // Admin (role_id 4): tampilkan data yang ada action selain "Lihat"
+	            4 => $query->whereNotIn('STATUS_ID', [2, 4, 6, 8, 10]),
+
+	            default => $query,
+	        };
+	    }
 }
