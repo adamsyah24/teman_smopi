@@ -4,7 +4,6 @@ use App\Http\Controllers\FormController;
 use App\Models\ViewLaporan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 
 Route::post('/submit', [FormController::class, 'submit'])->name('pengaduan.submit');
 Route::get('/pengaduan/lihat/{id}', [FormController::class, 'lihat'])->name('pengaduan.lihat');
@@ -15,19 +14,29 @@ Route::get('/', [FormController::class, 'showForm']);
 
 Route::get('/download-bukti/{id}', function ($id) {
     $data = DB::table('t_laporan_admin')->where('ID', $id)->first();
-    abort_if(!$data, 404);
+    abort_if(! $data, 404);
 
-    $filePath = public_path('storage/' . $data->BUKTI_SS);
-    abort_if(!file_exists($filePath), 404);
+    $filePath = public_path('storage/'.$data->BUKTI_SS);
+    abort_if(! file_exists($filePath), 404);
 
     return response()->download($filePath);
 })->name('download.bukti');
 
+Route::get('/download-bukti-selesai/{id}', function ($id) {
+    $data = DB::table('t_laporan_admin')->where('ID', $id)->first();
+    abort_if(! $data, 404);
+
+    $filePath = public_path('storage/'.$data->BUKTI_SELESAI);
+    abort_if(! file_exists($filePath), 404);
+
+    return response()->download($filePath);
+})->name('download.bukti-selesai');
+
 Route::get('/adminUser/tabel-laporan-admin/export', function () {
     abort_unless(auth()->check(), 401);
-    abort_unless(in_array(auth()->user()->role_id, [1, 2, 4], true), 403);
+    abort_unless(in_array(auth()->user()->role_id, [1, 2, 3, 4], true), 403);
 
-    $filename = 'laporan_admin_' . now()->format('Ymd_His') . '.xls';
+    $filename = 'laporan_admin_'.now()->format('Ymd_His').'.xls';
 
     return response()->streamDownload(function () {
         echo "\xEF\xBB\xBF";
@@ -45,18 +54,32 @@ Route::get('/adminUser/tabel-laporan-admin/export', function () {
 
         $i = 1;
 
-        foreach (ViewLaporan::query()->orderBy('TIKET', 'DESC')->cursor() as $row) {
+        $roleId = auth()->user()->role_id;
+
+        $query = ViewLaporan::query();
+
+        if ($roleId === 2) {
+            $query->whereNotIn('STATUS_ID', [2, 4, 10]);
+        } elseif ($roleId === 3) {
+            $query->whereIn('STATUS_ID', [3, 7, 9]);
+        } elseif ($roleId === 4) {
+            $query->whereNotIn('STATUS_ID', [2, 4, 6, 8, 10]);
+        }
+
+        // role 1 tidak diberi filter
+
+        foreach ($query->orderBy('TIKET', 'DESC')->cursor() as $row) {
             $buktiUrl = route('download.bukti', $row->ID);
 
             echo '<tr>';
-            echo '<td>' . $i++ . '</td>';
-            echo '<td>' . e($row->TIKET) . '</td>';
-            echo '<td>' . e($row->NAMA) . '</td>';
-            echo '<td>' . e($row->NAMA_KATEGORI) . '</td>';
-            echo '<td>' . e($row->NAMA_STATUS) . '</td>';
-            echo '<td>' . e($row->NO_HP) . '</td>';
-            echo '<td>' . e($row->CREATED_AT) . '</td>';
-            echo '<td><a href="' . e($buktiUrl) . '">Download File</a></td>';
+            echo '<td>'.$i++.'</td>';
+            echo '<td>'.e($row->TIKET).'</td>';
+            echo '<td>'.e($row->NAMA).'</td>';
+            echo '<td>'.e($row->NAMA_KATEGORI).'</td>';
+            echo '<td>'.e($row->NAMA_STATUS).'</td>';
+            echo '<td>'.e($row->NO_HP).'</td>';
+            echo '<td>'.e($row->CREATED_AT).'</td>';
+            echo '<td><a href="'.e($buktiUrl).'">Download File</a></td>';
             echo '</tr>';
         }
 
@@ -66,3 +89,7 @@ Route::get('/adminUser/tabel-laporan-admin/export', function () {
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->middleware('auth')->name('adminUser.tabel-laporan-admin.export');
+
+Route::get('/adminUser/dashboard/export-excel', [\App\Http\Controllers\DashboardExportController::class, 'exportExcel'])->name('dashboard.export-excel')->middleware('auth');
+Route::get('/adminUser/dashboard/export-pdf', [\App\Http\Controllers\DashboardExportController::class, 'exportPdf'])->name('dashboard.export-pdf')->middleware('auth');
+

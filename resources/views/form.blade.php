@@ -150,10 +150,64 @@
                 <label for="asal_instansi">Kewenangan Pengelolaan DI<span style="color: red">*</span></label>
                 <select id="asal_instansi" name="asal_instansi" required>
                     <option value="">-- Pilih Asal --</option>
-                    <option value="BBWS Citarum">BBWS Citarum</option>
-                    <option value="BBWS Serayu Opak">BBWS Serayu Opak</option>
-                    <option value="BBWS Bengawan Solo">BBWS Bengawan Solo</option>
                     <option value="Kantor Pusat PU">Kantor Pusat PU</option>
+
+                    <option value="Balai Wilayah Sungai Sumatera I">Balai Wilayah Sungai Sumatera I</option>
+                    <option value="Balai Wilayah Sungai Sumatera II">Balai Wilayah Sungai Sumatera II</option>
+                    <option value="Balai Wilayah Sungai Sumatera III">Balai Wilayah Sungai Sumatera III</option>
+                    <option value="Balai Wilayah Sungai Sumatera IV">Balai Wilayah Sungai Sumatera IV</option>
+                    <option value="Balai Wilayah Sungai Sumatera V">Balai Wilayah Sungai Sumatera V</option>
+                    <option value="Balai Wilayah Sungai Sumatera VI">Balai Wilayah Sungai Sumatera VI</option>
+                    <option value="Balai Wilayah Sungai Sumatera VII">Balai Wilayah Sungai Sumatera VII</option>
+                    <option value="Balai Besar Wilayah Sungai Sumatera VIII">Balai Besar Wilayah Sungai Sumatera VIII
+                    </option>
+                    <option value="Balai Wilayah Sungai Sumatera Bangka Belitung">Balai Wilayah Sungai Sumatera Bangka
+                        Belitung</option>
+
+                    <option value="Balai Besar Wilayah Sungai Mesuji Sekampung">Balai Besar Wilayah Sungai Mesuji
+                        Sekampung</option>
+                    <option value="Balai Besar Wilayah Sungai Cidanau Ciujung Cidurian">Balai Besar Wilayah Sungai
+                        Cidanau Ciujung Cidurian</option>
+                    <option value="Balai Besar Wilayah Sungai Ciliwung Cisadane">Balai Besar Wilayah Sungai Ciliwung
+                        Cisadane</option>
+                    <option value="Balai Besar Wilayah Sungai Citarum">Balai Besar Wilayah Sungai Citarum</option>
+                    <option value="Balai Besar Wilayah Sungai Citanduy">Balai Besar Wilayah Sungai Citanduy</option>
+                    <option value="Balai Besar Wilayah Sungai Cimanuk Cisanggarung">Balai Besar Wilayah Sungai Cimanuk
+                        Cisanggarung</option>
+                    <option value="Balai Besar Wilayah Sungai Pemali Juana">Balai Besar Wilayah Sungai Pemali Juana
+                    </option>
+                    <option value="Balai Besar Wilayah Sungai Bengawan Solo">Balai Besar Wilayah Sungai Bengawan Solo
+                    </option>
+                    <option value="Balai Besar Wilayah Sungai Serayu Opak">Balai Besar Wilayah Sungai Serayu Opak
+                    </option>
+                    <option value="Balai Besar Wilayah Sungai Brantas">Balai Besar Wilayah Sungai Brantas</option>
+
+                    <option value="Balai Wilayah Sungai Bali Penida">Balai Wilayah Sungai Bali Penida</option>
+
+                    <option value="Balai Wilayah Sungai Kalimantan I">Balai Wilayah Sungai Kalimantan I</option>
+                    <option value="Balai Wilayah Sungai Kalimantan II">Balai Wilayah Sungai Kalimantan II</option>
+                    <option value="Balai Wilayah Sungai Kalimantan III">Balai Wilayah Sungai Kalimantan III</option>
+                    <option value="Balai Wilayah Sungai Kalimantan IV">Balai Wilayah Sungai Kalimantan IV</option>
+                    <option value="Balai Wilayah Sungai Kalimantan V">Balai Wilayah Sungai Kalimantan V</option>
+
+                    <option value="Balai Wilayah Sungai Sulawesi I">Balai Wilayah Sungai Sulawesi I</option>
+                    <option value="Balai Wilayah Sungai Sulawesi II">Balai Wilayah Sungai Sulawesi II</option>
+                    <option value="Balai Wilayah Sungai Sulawesi III">Balai Wilayah Sungai Sulawesi III</option>
+                    <option value="Balai Wilayah Sungai Sulawesi IV">Balai Wilayah Sungai Sulawesi IV</option>
+                    <option value="Balai Besar Wilayah Sungai Pompengan – Jeneberang">Balai Besar Wilayah Sungai
+                        Pompengan – Jeneberang</option>
+
+                    <option value="Balai Wilayah Sungai Nusa Tenggara I">Balai Wilayah Sungai Nusa Tenggara I</option>
+                    <option value="Balai Besar Wilayah Sungai Nusa Tenggara II">Balai Besar Wilayah Sungai Nusa Tenggara
+                        II</option>
+
+                    <option value="Balai Wilayah Sungai Maluku">Balai Wilayah Sungai Maluku</option>
+                    <option value="Balai Wilayah Sungai Maluku Utara">Balai Wilayah Sungai Maluku Utara</option>
+
+                    <option value="Balai Wilayah Sungai Papua">Balai Wilayah Sungai Papua</option>
+                    <option value="Balai Wilayah Sungai Papua Merauke">Balai Wilayah Sungai Papua Merauke</option>
+                    <option value="Balai Wilayah Sungai Papua Barat">Balai Wilayah Sungai Papua Barat</option>
+
                     <option value="Lainnya">Instansi Lainnya</option>
                 </select>
             </div>
@@ -179,7 +233,7 @@
             </div>
 
             <div class="form-group">
-                <label for="nama_akun">Nama Akun SMOPI<span style="color: red">*</span></label>
+                <label for="nama_akun">Username SMOPI<span style="color: red">*</span></label>
                 <input placeholder="Contoh: Supriyadi123" type="text" id="nama_akun" name="nama_akun" required />
             </div>
 
@@ -209,15 +263,19 @@
             </div>
 
             <div class="form-group">
-                <label for="deskripsi">Deskripsi Kendala<span style="color: red">*</span></label>
-                <textarea id="deskripsi" name="deskripsi" required></textarea>
+                <label for="deskripsi">Deskripsi Kendala<span style="color: red">*</span><span
+                        style="font-size: 12px; color: red">(Mohon isikan detail kendala, akun Jenjang 2, Pengamat dan
+                        Juru.)</span> </label>
+                <textarea id="deskripsi" name="deskripsi" required
+                    placeholder="Detail Kendala&#9;:&#10;Akun Jenjang 2&#9;:&#10;Akun Pengamat&#9;:&#10;Akun Juru&#9;:"></textarea>
             </div>
 
             <div class="form-group">
                 <label for="bukti">Bukti<span style="color: red">*</span> <span
                         style="font-size: 12px; color: red">(Mohon kirim Screen Capture yang jelas dan benar agar dapat
                         diproses.)</span> </label>
-                <input type="file" id="bukti" name="bukti" required />
+                <label style="font-size: 12px; color: red">*hanya bisa image atau pdf</label>
+                <input type="file" id="bukti" name="bukti" accept=".jpg,.jpeg,.png,.pdf" required />
             </div>
 
             <div class="form-group">
@@ -237,6 +295,34 @@
             document.getElementById("pageLoading").style.display = "flex";
         });
 
+        document.getElementById("bukti").addEventListener("change", function() {
+            const file = this.files[0];
+
+            if (!file) return;
+
+            // Maksimal 2 MB
+            const maxSize = 2 * 1024 * 1024;
+
+            // Tipe file yang diizinkan
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "application/pdf"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("File harus berupa JPG, JPEG, PNG, atau PDF.");
+                this.value = "";
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert("Ukuran file maksimal 2 MB.");
+                this.value = "";
+                return;
+            }
+        });
+
         document.getElementById("pengaduanForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -251,14 +337,40 @@
                     },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("HTTP error " + response.status);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    alert(`Pengaduan dengan nomor tiket ${data.tiket} berhasil dikirim!`);
-                    window.location.href = "{{ url()->current() }}";
+                    if (data.success) {
+                        alert(`Pengaduan dengan nomor tiket ${data.tiket} berhasil dikirim!`);
+                        window.location.href = "{{ url()->current() }}";
+                    } else {
+                        alert("Gagal: " + data.message);
+                    }
                 })
                 .catch(error => {
                     alert("Terjadi kesalahan saat mengirim pengaduan.");
                 });
+
+
+            // fetch("{{ route('pengaduan.submit') }}", {
+            //         method: "POST",
+            //         headers: {
+            //             "X-CSRF-TOKEN": token
+            //         },
+            //         body: formData
+            //     })
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         alert(`Pengaduan dengan nomor tiket ${data.tiket} berhasil dikirim!`);
+            //         window.location.href = "{{ url()->current() }}";
+            //     })
+            //     .catch(error => {
+            //         alert("Terjadi kesalahan saat mengirim pengaduan.");
+            //     });
         });
 
         function clearForm() {

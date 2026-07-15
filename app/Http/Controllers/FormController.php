@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Helpers\WaBlast;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class FormController extends Controller
@@ -38,64 +36,65 @@ class FormController extends Controller
             : null;
         $numbers = [];
 
-        if (!empty($nohp)) {
+        $message = "📢 Laporan Baru!\n\n".
+                    "Laporan baru telah masuk untuk diajukan dengan nomor tiket *$tiket*.\n".
+                    'Terima kasih 🙏';
+
+        if (! empty($nohp)) {
             $numbers[] = $nohp;
         }
 
-        if (!empty($nomorWa)) {
+        if (! empty($nomorWa)) {
             $numbers = array_merge($numbers, (array) $nomorWa);
         }
 
         // dd($pengajar, $nomorWa, $numbers);
 
         try {
-            DB::table('t_laporan_admin')->insert([
-                'ID' => $id,
-                'TIKET' => $tiket,
-                'NAMA' => $request->nama,
-                'ID_KATEGORI' => $request->menu_kendala,
-                'ASAL_INSTANSI' => $request->asal_instansi,
-                'NAMA_DI' => $request->nama_di,
-                'NAMA_INSTANSI' => $request->nama_instansi,
-                'ID_PENGAJAR' => $pengajar,
-                'NAMA_AKUN' => $request->nama_akun,
-                'JENIS_AKUN' => $request->jenis_akun,
-                'DESKRIPSI' => $request->deskripsi,
-                'STATUS' => 1,
-                'BUKTI_SS' => $bukti,
-                'NO_HP' => $request->nohp,
-                'CREATED_AT' => now(),
-                'CREATED_BY' => 'system',
-                'UPDATED_AT' => now(),
-                'UPDATED_BY' => 'system',
-            ]);
+            DB::transaction(function () use ($id, $tiket, $request, $pengajar, $bukti, $numbers, $message) {
+                DB::table('t_laporan_admin')->insert([
+                    'ID' => $id,
+                    'TIKET' => $tiket,
+                    'NAMA' => $request->nama,
+                    'ID_KATEGORI' => $request->menu_kendala,
+                    'ASAL_INSTANSI' => $request->asal_instansi,
+                    'NAMA_DI' => $request->nama_di,
+                    'NAMA_INSTANSI' => $request->nama_instansi,
+                    'ID_PENGAJAR' => $pengajar,
+                    'NAMA_AKUN' => $request->nama_akun,
+                    'JENIS_AKUN' => $request->jenis_akun,
+                    'DESKRIPSI' => $request->deskripsi,
+                    'STATUS' => 1,
+                    'BUKTI_SS' => $bukti,
+                    'NO_HP' => $request->nohp,
+                    'CREATED_AT' => now(),
+                    'CREATED_BY' => 'system',
+                    'UPDATED_AT' => now(),
+                    'UPDATED_BY' => 'system',
+                ]);
+                // dd($message);
 
-            $message = "📢 Laporan Baru!\n\n" .
-                "Laporan baru telah masuk untuk diajukan dengan nomor tiket *$tiket*.\n" .
-                "Terima kasih 🙏";
-            // dd($message);
-
-            WaBlast::send($numbers, $message);
+                WaBlast::send($numbers, $message);
+            });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil disimpan.',
-                'tiket' => $tiket
+                'tiket' => $tiket,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
-            ]);
+                'message' => 'Gagal menyimpan data: '.$e->getMessage(),
+            ], 500);
         }
     }
-
 
     public function showForm()
     {
         $kategori = DB::table('ms_kategori')->get();
         $users = DB::table('users')
-            ->where('role_id', "=", "2")
+            ->where('role_id', '=', '2')
             ->orderBy('created_at', 'desc')
             ->get();
         // dd($users);
@@ -109,7 +108,7 @@ class FormController extends Controller
 
         $data = DB::table('t_laporan_admin')->where('ID', $id)->first();
 
-        if (!$data) {
+        if (! $data) {
             abort(404, 'Data tidak ditemukan.');
         }
 

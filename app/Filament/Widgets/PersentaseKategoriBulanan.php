@@ -11,6 +11,32 @@ class PersentaseKategoriBulanan extends ChartWidget
     protected static ?string $heading = 'Persentase Laporan per Kategori per Bulan';
     protected static ?string $maxHeight = '600px';
     protected int | string | array $columnSpan = 'full';
+    protected static string $view = 'filament.widgets.persentase-kategori-bulanan';
+
+    public array $selectedRoles = ['admin', 'j1', 'j2', 'pengamat', 'mantri', 'ppa', 'pob'];
+
+    protected static array $roleCategories = [
+        'admin' => [1, 2, 3, 4, 5, 6, 7],
+        'j1' => [8],
+        'j2' => [9, 10, 11, 12, 13, 14, 15, 16, 17],
+        'pengamat' => [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37],
+        'mantri' => [38, 39, 40, 41, 42, 43, 44, 45, 49],
+        'ppa' => [45, 46, 47, 49],
+        'pob' => [48],
+    ];
+
+    public function getRoleNames(): array
+    {
+        return [
+            'admin' => 'Admin',
+            'j1' => 'Jenjang 1',
+            'j2' => 'Jenjang 2',
+            'pengamat' => 'Pengamat',
+            'mantri' => 'Mantri / Juru',
+            'ppa' => 'Petugas Pintu Air (PPA)',
+            'pob' => 'Petugas Operasi Bendung (POB)',
+        ];
+    }
 
     protected function getData(): array
     {
@@ -22,8 +48,15 @@ class PersentaseKategoriBulanan extends ChartWidget
             $bulanList->push($bulan->format('Y-m'));
         }
 
+        if (empty($this->selectedRoles)) {
+            return [
+                'labels' => $bulanList->map(fn($b) => Carbon::createFromFormat('Y-m', $b)->translatedFormat('F Y')),
+                'datasets' => [],
+            ];
+        }
+
         // Ambil semua kategori
-        $kategoriList = DB::table('ms_kategori')->pluck('NAMA_KATEGORI', 'ID');
+        $kategoriNames = DB::table('ms_kategori')->pluck('NAMA_KATEGORI', 'ID')->toArray();
 
         // Warna palet (akan diputar sesuai jumlah kategori)
         $colors = [
@@ -35,47 +68,67 @@ class PersentaseKategoriBulanan extends ChartWidget
             '#ec4899', // Pink
             '#14b8a6', // Teal
             '#f97316', // Orange
+            '#06b6d4', // Cyan
+            '#84cc16', // Lime
+            '#a855f7', // Purple
+            '#6366f1', // Indigo
         ];
 
         $datasets = [];
         $colorIndex = 0;
 
-        foreach ($kategoriList as $idKategori => $namaKategori) {
-            $dataPerBulan = [];
+        foreach ($this->selectedRoles as $role) {
+            $roleLabel = $this->getRoleNames()[$role] ?? ucfirst($role);
+            $categoryIds = self::$roleCategories[$role] ?? [];
 
-            foreach ($bulanList as $bulan) {
-                // Hitung total laporan di bulan itu
-                $totalLaporanBulan = DB::table('t_laporan_admin')
-                    ->where('STATUS', '!=', 0)
-                    ->whereYear('CREATED_AT', substr($bulan, 0, 4))
-                    ->whereMonth('CREATED_AT', substr($bulan, 5, 2))
-                    ->count();
+            foreach ($categoryIds as $idKategori) {
+                if (!isset($kategoriNames[$idKategori])) {
+                    continue;
+                }
+                $namaKategori = $kategoriNames[$idKategori];
+                $dataPerBulan = [];
 
-                // Hitung laporan kategori tersebut di bulan itu
-                $jumlahKategori = DB::table('t_laporan_admin')
-                    ->where('STATUS', '!=', 0)
-                    ->where('ID_KATEGORI', $idKategori)
-                    ->whereYear('CREATED_AT', substr($bulan, 0, 4))
-                    ->whereMonth('CREATED_AT', substr($bulan, 5, 2))
-                    ->count();
+                foreach ($bulanList as $bulan) {
+                    // Hitung total laporan di bulan itu (hanya untuk role yang dicentang)
+                    $totalLaporanBulan = DB::table('t_laporan_admin')
+                        ->where('STATUS', '!=', 0)
+                        ->whereIn('JENIS_AKUN', $this->selectedRoles)
+                        ->whereYear('CREATED_AT', substr($bulan, 0, 4))
+                        ->whereMonth('CREATED_AT', substr($bulan, 5, 2))
+                        ->count();
 
-                $persen = $totalLaporanBulan > 0
-                    ? round(($jumlahKategori / $totalLaporanBulan) * 100, 2)
-                    : 0;
+                    // Hitung laporan kategori tersebut di bulan itu untuk ROLE ini
+                    $jumlahKategori = DB::table('t_laporan_admin')
+                        ->where('STATUS', '!=', 0)
+                        ->where('ID_KATEGORI', $idKategori)
+                        ->where('JENIS_AKUN', $role)
+                        ->whereYear('CREATED_AT', substr($bulan, 0, 4))
+                        ->whereMonth('CREATED_AT', substr($bulan, 5, 2))
+                        ->count();
 
-                $dataPerBulan[] = $persen;
+                    $persen = $totalLaporanBulan > 0
+                        ? round(($jumlahKategori / $totalLaporanBulan) * 100, 2)
+                        : 0;
+
+                    $dataPerBulan[] = $persen;
+                }
+
+                // Skip category if it has no reports at all across all 6 months to reduce noise
+                if (array_sum($dataPerBulan) == 0) {
+                    continue;
+                }
+
+                $color = $colors[$colorIndex % count($colors)];
+                $colorIndex++;
+
+                $datasets[] = [
+                    'label' => "[{$roleLabel}] {$namaKategori}",
+                    'data' => $dataPerBulan,
+                    'borderColor' => $color,
+                    'backgroundColor' => $color,
+                    'tension' => 0.3, // garis agak melengkung
+                ];
             }
-
-            $color = $colors[$colorIndex % count($colors)];
-            $colorIndex++;
-
-            $datasets[] = [
-                'label' => $namaKategori,
-                'data' => $dataPerBulan,
-                'borderColor' => $color,
-                'backgroundColor' => $color,
-                'tension' => 0.3, // garis agak melengkung
-            ];
         }
 
         return [
